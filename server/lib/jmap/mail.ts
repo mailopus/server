@@ -80,7 +80,7 @@ const pick = (obj: Record<string, unknown>, props: string[] | null) =>
 // server/lib/addressed.ts), sends only as identities inside them, and can't change folders or identities.
 
 /** SQL on alias `e` for "inside the scope"; "1" for all mail. */
-const scopeSql = (ctx: Ctx) => (ctx.scope ? addressedSql(ctx.scope) : { sql: "1", params: [] as unknown[] });
+export const scopeSql = (ctx: Ctx) => (ctx.scope ? addressedSql(ctx.scope) : { sql: "1", params: [] as unknown[] });
 
 /** Whether an address is inside the scope, by the same rule as addressedSql. */
 export function addressInScope(address: string, scope: string[] | null | undefined): boolean {
@@ -559,9 +559,26 @@ function truncate(value: string, max: number) {
 	return { value: out, isEncodingProblem: false, isTruncated: true };
 }
 
+/** The URLs in a header of <url> entries (RFC 8621 asURLs), such as List-Unsubscribe. Folding whitespace inside one is dropped. */
+export const angleUrls = (value: string) => [...value.matchAll(/<([^<>]*)>/g)].map((m) => m[1]!.replace(/\s+/g, "")).filter(Boolean);
+
+/**
+ * A header:{name}[:asRaw|asText|asURLs][:all] property (RFC 8621 4.1.3). The parser unfolds the value.
+ * Without :all, the last field of that name wins, null when there is none.
+ */
+export function headerProp(headers: { key: string; value: string }[], prop: string): unknown {
+	const [, name, ...rest] = prop.split(":");
+	const all = rest.at(-1) === "all";
+	const form = (all ? rest.slice(0, -1) : rest)[0] ?? "asRaw";
+	const parse = form === "asRaw" ? (v: string) => v : form === "asText" ? (v: string) => v.trim() : form === "asURLs" ? angleUrls : null;
+	if (!name || !parse) throw new MethodError("invalidArguments", `${prop}: only asRaw, asText and asURLs`);
+	const values = headers.filter((h) => h.key === name.toLowerCase()).map((h) => parse(h.value));
+	return all ? values : values.at(-1) ?? null;
+}
+
 // ponytail: flat body model (one text part, one html part, attachments). No bodyStructure or
 // per-part headers; add when a client needs the full MIME tree.
-async function rawProps(ctx: Ctx, id: string, blobKey: string, args: Record<string, unknown>) {
+async function rawProps(ctx: Ctx, id: string, blobKey: string, args: Record<string, unknown>, props: string[]) {
 	const obj = await ctx.mail.get(blobKey);
 	if (!obj) return {};
 	const m = await PostalMime.parse(await obj.arrayBuffer());
@@ -573,6 +590,7 @@ async function rawProps(ctx: Ctx, id: string, blobKey: string, args: Record<stri
 	if (textPart && (all || args.fetchTextBodyValues)) bodyValues.text = truncate(m.text!, max);
 	if (htmlPart && (all || args.fetchHTMLBodyValues)) bodyValues.html = truncate(m.html!, max);
 	return {
+		...Object.fromEntries(props.filter((p) => p.startsWith("header:")).map((p) => [p, headerProp(m.headers, p)])),
 		inReplyTo: bareIds(m.inReplyTo),
 		references: bareIds(m.references),
 		sender: m.sender ? addrs(m.sender) : null,
@@ -603,7 +621,7 @@ const HEADER_MAX = 65536;
  * A range read: IMAP clients sync a folder by fetching headers of every message, and the bodies
  * would be most of the bytes.
  */
-async function rawHeader(mail: R2Bucket, key: string): Promise<string | null> {
+export async function rawHeader(mail: R2Bucket, key: string): Promise<string | null> {
 	const obj = await mail.get(key, { range: { offset: 0, length: HEADER_MAX } });
 	if (!obj) return null;
 	const b = new Uint8Array(await obj.arrayBuffer());
@@ -642,7 +660,7 @@ const emailGet: Method<Ctx> = async (args, ctx) => {
 		mailboxIds.set(b.email_id, { ...mailboxIds.get(b.email_id), [b.mailbox_id]: true });
 		imapUids.set(b.email_id, { ...imapUids.get(b.email_id), [b.mailbox_id]: b.uid });
 	}
-	const needRaw = props.some((p) => RAW_PROPS.has(p));
+	const needRaw = props.some((p) => RAW_PROPS.has(p) || p.startsWith("header:"));
 	const list = await Promise.all((rows!.results as Record<string, any>[]).map(async (e) => {
 		const full: Record<string, unknown> = {
 			id: e.id,
@@ -664,7 +682,7 @@ const emailGet: Method<Ctx> = async (args, ctx) => {
 			sentAt: e.sent_at ? new Date(e.sent_at).toISOString() : null,
 			hasAttachment: !!e.has_attachment,
 			preview: e.preview,
-			...(needRaw ? await rawProps(ctx, e.id, e.blob_key, args) : {}),
+			...(needRaw ? await rawProps(ctx, e.id, e.blob_key, args, props) : {}),
 			// Ours (IMAP capability). Only when asked for.
 			...(props.includes("imapHeader") ? { imapHeader: await rawHeader(ctx.mail, e.blob_key) } : {}),
 		};

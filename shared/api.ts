@@ -10,7 +10,7 @@ export const SERVER = "https://mailopus.net/jmap/server";
  * The API level this build speaks. Bump it when the UI starts relying on something a server built before
  * the bump doesn't have: a new method, property or route. Bug fixes and server-only changes don't bump it.
  */
-export const API = 6;
+export const API = 7;
 
 /**
  * The oldest server API level this UI still drives. Raise it only once the level being dropped

@@ -22,6 +22,16 @@ Open a message, then use its menu to block the sender's address or domain. New m
 
 A pattern like `@example.com` covers that host and every subdomain, so `@example.com` also blocks `news.example.com`. Blocks are per account and apply only to mail that arrives after you block.
 
+## Unsubscribe
+
+Mailing lists that send a `List-Unsubscribe` header get a **List: Unsubscribe** line under the message's recipients. It asks before doing anything, then shows what happened. Which way it unsubscribes depends on what the list offers, in this order:
+
+1. **One-click.** When the list also sends `List-Unsubscribe-Post: List-Unsubscribe=One-Click` (RFC 8058) and an https link, your Worker POSTs `List-Unsubscribe=One-Click` to that link. The list sees your Worker, not your browser or IP. The Worker reads the link from the stored message, not from the request. It only posts over https on the default port to a public host name: no IP addresses, no `localhost` or `.local` names, no redirects. It gives up after 10 seconds.
+2. **Email.** With a `mailto:` link, the app sends the unsubscribe email from the address the message was delivered to, using the subject and body the link asks for. The copy lands in Sent.
+3. **Web page.** With only an https link, the app opens it in a new tab and you finish there.
+
+Unsubscribing doesn't block anything. A list that ignores it can still be blocked as above. This needs a server at API level 7 or newer. An older server doesn't return the headers, so the line doesn't show.
+
 ## What a rule sees
 
 For each inbound message the Worker builds:
