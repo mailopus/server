@@ -1,0 +1,5 @@
+*_test.go
+.env
+deploy
+README.md
+third_party/go-imap/**/*_test.go

@@ -1,0 +1,6 @@
+allowBuilds:
+  esbuild: true
+  workerd: true
+# Skip package versions younger than 3 days. Hijacked releases are
+# usually pulled within hours. List a package under minimumReleaseAgeExclude to take an urgent fix sooner.
+minimumReleaseAge: 4320

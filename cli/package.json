@@ -1,0 +1,30 @@
+{
+  "name": "mailopus",
+  "version": "0.1.1",
+  "description": "The command line for a Mailopus server",
+  "license": "PolyForm-Shield-1.0.0",
+  "type": "module",
+  "bin": {
+    "mailopus": "mailopus.mjs"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "prepack": "../node_modules/.bin/rolldown mailopus.mjs --platform node --format esm --dir dist --entry-file-names mailopus.mjs"
+  },
+  "publishConfig": {
+    "bin": {
+      "mailopus": "dist/mailopus.mjs"
+    }
+  },
+  "homepage": "https://docs.mailopus.net",
+  "keywords": [
+    "mailopus",
+    "email",
+    "cli"
+  ]
+}

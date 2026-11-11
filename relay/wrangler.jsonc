@@ -1,0 +1,15 @@
+{
+	// Relays inbound mail for a domain whose zone lives in another Cloudflare account. Email Routing can
+	// only hand mail to a Worker in the zone's own account, so this one signs each message and POSTs it
+	// to your Mailopus Worker (docs/addresses.md, "Domains in another Cloudflare account").
+	// Deploy into the zone's account: CLOUDFLARE_ACCOUNT_ID=<that account> npx wrangler deploy -c relay/wrangler.jsonc
+	"name": "mailopus-relay",
+	"main": "./src/index.ts",
+	"compatibility_date": "2026-11-01",
+	"workers_dev": false,
+	"preview_urls": false,
+	"observability": { "enabled": true },
+	// Your Mailopus Worker's ingest endpoint.
+	"vars": { "MAILOPUS_INGEST_URL": "https://mailopus.<your subdomain>.workers.dev/api/ingest" }
+	// Secret: INGEST_SECRET, the same value as on your Mailopus Worker.
+}

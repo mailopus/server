@@ -1,0 +1,5 @@
+.env
+.test-password
+selfsigned.crt
+# The binary `go build` leaves here. It embeds local paths.
+/imap

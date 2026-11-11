@@ -1,0 +1,1 @@
+CLASSIFIER_KEY=a-long-random-string # openssl rand -base64 32. Put the same value in Mailopus's SPAM_CLASSIFIERS.

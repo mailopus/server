@@ -1,0 +1,6 @@
+From: Someone <a@b.example>
+To: you@example.net
+Subject: hello
+X-Mailer:
+ Nodemailer (6.9.8; +https://nodemailer.com/)
+Content-Type: text/plain

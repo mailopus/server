@@ -1,0 +1,8 @@
+Received: from vps-1.example-host.net (203.0.113.44)
+	by mx.example.net with ESMTP id def456
+From: "Growth Team" <hello@quick-leads.example>
+To: you@example.net
+Subject: Quick question
+Message-ID: <b1946ac92492d2347c6235b4d2611184@quick-leads.example>
+X-Mailer: PHPMailer 6.9.1 (https://github.com/PHPMailer/PHPMailer)
+Content-Type: text/plain

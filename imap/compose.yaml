@@ -1,0 +1,20 @@
+# Locally: cp .env.example .env, then docker compose up. Ports default to 1993/1143/1465/1587 so nothing
+# needs root; on a server .env sets them to 993/143/465/587.
+services:
+  imap:
+    build: .
+    image: mailopus-imap
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    ports:
+      - "${IMAP_BIND:-127.0.0.1}:${IMAP_PORT:-1993}:993"
+      - "${IMAP_BIND:-127.0.0.1}:${IMAP_STARTTLS_PORT:-1143}:143"
+      - "${IMAP_BIND:-127.0.0.1}:${SMTPS_PORT:-1465}:465"
+      - "${IMAP_BIND:-127.0.0.1}:${SUBMISSION_PORT:-1587}:587"
+    volumes:
+      - certs:/data/certs
+    mem_limit: 256m
+volumes:
+  certs:

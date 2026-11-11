@@ -1,0 +1,13 @@
+{
+	"//": "One entry per fixture file: the context Mailopus would send, and the rule that must fire (null: none). tests/rules.test.ts checks every pair.",
+	"cases": [
+		{ "fixture": "newsletter-known-sender", "ctx": { "firstContact": false, "senderHasRdns": true, "senderDomainAgeDays": 4000 }, "rule": null },
+		{ "fixture": "newsletter-known-sender", "ctx": {}, "rule": null },
+		{ "fixture": "phpmailer-cold", "ctx": { "firstContact": true, "senderHasRdns": true, "senderDomainAgeDays": 400 }, "rule": "bulk-library-first-contact" },
+		{ "fixture": "phpmailer-cold", "ctx": { "firstContact": false, "senderHasRdns": true }, "rule": null },
+		{ "fixture": "phpmailer-cold", "ctx": {}, "rule": null },
+		{ "fixture": "nodemailer-folded", "ctx": { "firstContact": true }, "rule": "bulk-library-first-contact" },
+		{ "fixture": "newsletter-known-sender", "ctx": { "firstContact": true, "senderDomainAgeDays": 12 }, "rule": "new-domain-first-contact" },
+		{ "fixture": "newsletter-known-sender", "ctx": { "senderHasRdns": false }, "rule": "sender-without-reverse-dns" }
+	]
+}

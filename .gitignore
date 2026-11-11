@@ -1,0 +1,12 @@
+node_modules
+.nuxt
+.nitro
+.output
+.wrangler
+.cloudflare
+dist
+.env*
+!.env.example
+.claude/
+relay/worker-configuration.d.ts
+.playwright-mcp/

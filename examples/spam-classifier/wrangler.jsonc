@@ -1,0 +1,12 @@
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	// A spam classifier for Mailopus. Your Mailopus server calls POST /v1/check (README.md).
+	"name": "mailopus-spam-classifier",
+	"main": "./src/index.ts",
+	"compatibility_date": "2026-11-01",
+	"workers_dev": true,
+	"preview_urls": false,
+	"observability": { "enabled": true }
+	// Secret, required: CLASSIFIER_KEY. `wrangler secret put CLASSIFIER_KEY`.
+	// No storage bindings on purpose: a classifier gets mail headers and must keep none of them.
+}

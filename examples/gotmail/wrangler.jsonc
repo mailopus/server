@@ -1,0 +1,20 @@
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	// gotmail (you've got mail): a Mailopus plugin that alerts you when mail you're waiting for moves.
+	// Your Mailopus server reaches it over a service binding to the Plugin entrypoint in src/index.ts (README.md).
+	"name": "mailopus-gotmail",
+	"main": "./src/index.ts",
+	"compatibility_date": "2026-11-01",
+	// No public address. Your server's binding doesn't need one. Set this to true only to run the
+	// plugin over https with PLUGIN_KEY, for a Mailopus server in another account.
+	"workers_dev": false,
+	"preview_urls": false,
+	"observability": { "enabled": true },
+	// Holds your alert rules and the sound alerts waiting for `listen`. Wrangler creates it on the first deploy.
+	"kv_namespaces": [{ "binding": "GOTMAIL" }]
+	// Secrets, one set per channel you use:
+	//   slack:   SLACK_WEBHOOK_URL
+	//   webhook: WEBHOOK_URL
+	//   sms:     TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_FROM, and SMS_TO as the default number
+	// Secret, only for the https way: PLUGIN_KEY, the key `mailopus plugin add gotmail <url>` prints.
+}

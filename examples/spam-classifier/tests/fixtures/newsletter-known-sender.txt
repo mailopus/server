@@ -1,0 +1,8 @@
+Received: from mail.example-shop.com (mail.example-shop.com [198.51.100.7])
+	by mx.example.net with ESMTPS id abc123
+From: Example Shop <news@example-shop.com>
+To: you@example.net
+Subject: Your order has shipped
+Message-ID: <20261108.1234@example-shop.com>
+X-Mailer: ShopMailer 4.2
+Content-Type: text/plain

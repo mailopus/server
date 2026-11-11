@@ -1,0 +1,35 @@
+{
+  "name": "mailopus",
+  "private": true,
+  "license": "PolyForm-Shield-1.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "nitro build",
+    "postinstall": "nitro prepare",
+    "types": "wrangler types",
+    "mailopus": "node cli/mailopus.mjs",
+    "deploy": "node cli/mailopus.mjs deploy",
+    "test": "node --test tests/"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "wrangler": "^4.157.0"
+  },
+  "dependencies": {
+    "@pushforge/builder": "^2.0.5",
+    "@simplewebauthn/server": "^14.0.3",
+    "nitropack": "2.13.6",
+    "postal-mime": "^4.2.0",
+    "reflect-metadata": "^0.2.2"
+  },
+  "cloudflare": {
+    "bindings": {
+      "APP_ORIGIN": {
+        "description": "Where you use Mailopus. Keep `https://app.mailopus.net`."
+      },
+      "RP_ID": {
+        "description": "The passkey domain for that UI. Keep `mailopus.net` with the default `APP_ORIGIN`."
+      }
+    }
+  }
+}
