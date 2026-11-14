@@ -31,11 +31,17 @@ export default defineEventHandler(async (event) => {
 		"cache-control": "private, max-age=86400",
 	});
 	// Content-Length is the sender's word, and a chunked answer has none. Count what actually arrives.
+	// The 200 is already out by now, so a body that stalls past the timeout or runs too large ends the
+	// image early. Throwing here would only log a Worker exception for a broken tracking pixel.
+	const reader = res.body?.getReader();
 	let seen = 0;
-	return res.body?.pipeThrough(new TransformStream<Uint8Array, Uint8Array>({
-		transform(chunk, controller) {
-			if ((seen += chunk.byteLength) > MAX_BYTES) controller.error(new Error("image too large"));
-			else controller.enqueue(chunk);
+	return reader && new ReadableStream<Uint8Array>({
+		async pull(controller) {
+			const part = await reader.read().catch(() => null);
+			if (part && !part.done && (seen += part.value.byteLength) <= MAX_BYTES) return controller.enqueue(part.value);
+			controller.close();
+			if (!part?.done) reader.cancel().catch(() => {});
 		},
-	}));
+		cancel: () => reader.cancel().catch(() => {}),
+	});
 });
